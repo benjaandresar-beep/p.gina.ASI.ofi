@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Herramienta interactiva de prevención del abuso sexual infantil: un semáforo del cuerpo para ayudar a niñas y niños a comunicar qué zonas se pueden y no se pueden tocar." />
+  <title>Mi Cuerpo es Mío · Semáforo del Cuerpo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       ADVERTENCIA / DISCLAIMER (se muestra antes de la página)
+       ============================================================ -->
+  <div id="advertencia" class="overlay" role="dialog" aria-modal="true" aria-labelledby="adv-titulo" aria-describedby="adv-texto">
+    <div class="overlay-card">
+      <div class="overlay-icon" aria-hidden="true">⚠️</div>
+      <h1 id="adv-titulo">Antes de empezar</h1>
+      <div id="adv-texto" class="overlay-text">
+        <p>
+          Esta página tiene un propósito <strong>únicamente informativo y de prevención</strong>.
+          Es una herramienta para acompañar a niñas y niños y ayudarles a reconocer y
+          comunicar qué partes del cuerpo se pueden tocar y cuáles no.
+        </p>
+        <p class="aviso-fuerte">
+          ⛔ Esta página <strong>no</strong> es un servicio de emergencia ni sirve para
+          atender una crisis emocional, una urgencia o una situación de peligro inmediato.
+        </p>
+        <p>
+          Si tú o un niño o niña están viviendo una situación de peligro, daño o una crisis
+          emocional <strong>ahora mismo</strong>, busca de inmediato a una persona adulta de
+          confianza o contacta con los servicios de ayuda de tu país (ver la sección
+          <em>«Si necesitas ayuda»</em> al final de la página).
+        </p>
+        <p class="recomendacion">
+          💛 Recomendamos que esta herramienta se use <strong>acompañada de una persona
+          adulta de confianza</strong> (madre, padre, cuidador/a, docente o profesional).
+        </p>
+      </div>
+
+      <label class="acepto">
+        <input type="checkbox" id="adv-check" />
+        <span>He leído y entiendo que esta página es informativa y de prevención, y que no
+        reemplaza la ayuda de un profesional ni de un servicio de emergencia.</span>
+      </label>
+
+      <button id="adv-entrar" class="btn-primary" disabled>Entrar</button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PÁGINA PRINCIPAL
+       ============================================================ -->
+  <main id="pagina" class="oculto">
+
+    <header class="cabecera">
+      <h1>Mi cuerpo es mío 💙</h1>
+      <p class="subtitulo">El semáforo del cuerpo: aprende y cuenta qué zonas se pueden tocar y cuáles no.</p>
+    </header>
+
+    <!-- Selector de personaje -->
+    <section class="bloque" aria-labelledby="sel-titulo">
+      <h2 id="sel-titulo">1. Elige tu personaje</h2>
+      <p class="ayuda">Puedes cambiar entre diferentes personajes. Todos tienen las mismas reglas.</p>
+      <div class="selector-personaje" role="group" aria-label="Seleccionar personaje">
+        <button class="chip-personaje activo" data-genero="neutro">🧒 Otro / Neutro</button>
+        <button class="chip-personaje" data-genero="femenino">👧 Femenino</button>
+        <button class="chip-personaje" data-genero="masculino">👦 Masculino</button>
+      </div>
+    </section>
+
+    <!-- Figura interactiva + panel de información -->
+    <section class="bloque" aria-labelledby="cuerpo-titulo">
+      <h2 id="cuerpo-titulo">2. Toca una zona del cuerpo</h2>
+      <p class="ayuda">Pulsa cualquier zona del personaje para saber si esa parte se puede tocar o no.</p>
+
+      <div class="cuerpo-layout">
+        <div class="figura-contenedor">
+          <svg id="figura" viewBox="0 0 300 640" role="img" aria-label="Figura del cuerpo con zonas de colores tipo semáforo. Pulsa una zona para más información.">
+            <!-- El contenido se dibuja con JavaScript (script.js) -->
+          </svg>
+
+          <!-- Leyenda del semáforo del cuerpo -->
+          <div class="leyenda" aria-hidden="false">
+            <span class="leyenda-item"><span class="punto verde"></span> Verde · se puede tocar (con tu permiso)</span>
+            <span class="leyenda-item"><span class="punto amarillo"></span> Amarillo · depende, presta atención</span>
+            <span class="leyenda-item"><span class="punto rojo"></span> Rojo · zona privada, nadie debe tocar</span>
+          </div>
+        </div>
+
+        <aside id="panel-info" class="panel-info" aria-live="polite">
+          <div class="panel-vacio">
+            <span class="panel-emoji" aria-hidden="true">👆</span>
+            <p>Pulsa una zona del cuerpo para ver qué significa su color.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Semáforo de comunicación (para que el niño/a exprese cómo se siente) -->
+    <section class="bloque bloque-semaforo" aria-labelledby="sem-titulo">
+      <h2 id="sem-titulo">3. El semáforo: cuéntanos cómo te sientes</h2>
+      <p class="ayuda">
+        Si te cuesta hablar, puedes <strong>usar los colores</strong>. Elige primero la zona y
+        luego el color del semáforo que muestre cómo te sientes. Una persona adulta de confianza
+        podrá leer tu mensaje.
+      </p>
+
+      <div class="semaforo-layout">
+
+        <!-- Paso A: zona del cuerpo -->
+        <div class="sem-paso">
+          <h3>a) ¿Qué zona?</h3>
+          <div id="zonas-botones" class="zonas-botones" role="group" aria-label="Elegir zona del cuerpo">
+            <!-- Botones generados por JavaScript -->
+          </div>
+        </div>
+
+        <!-- Paso B: el semáforo interactivo -->
+        <div class="sem-paso">
+          <h3>b) ¿Cómo te sientes?</h3>
+          <div class="semaforo" role="group" aria-label="Semáforo de emociones">
+            <button class="luz luz-rojo" data-sentir="rojo" aria-label="Rojo: algo me hizo sentir mal o tocaron una zona privada">
+              <span class="luz-circulo"></span>
+              <span class="luz-texto">Algo me hizo sentir mal o tocaron una zona privada. Necesito ayuda.</span>
+            </button>
+            <button class="luz luz-amarillo" data-sentir="amarillo" aria-label="Amarillo: algo me incomoda o me confunde">
+              <span class="luz-circulo"></span>
+              <span class="luz-texto">Algo me incomoda o me confunde. No estoy seguro/a.</span>
+            </button>
+            <button class="luz luz-verde" data-sentir="verde" aria-label="Verde: me siento seguro y bien">
+              <span class="luz-circulo"></span>
+              <span class="luz-texto">Me siento seguro/a y bien.</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mensaje resultante para la persona adulta -->
+      <div id="mensaje-resultado" class="mensaje-resultado oculto" aria-live="polite">
+        <h3>📨 Mensaje para la persona adulta de confianza</h3>
+        <p id="mensaje-texto"></p>
+        <p class="mensaje-nota">
+          Gracias por contarlo. Lo más importante es que <strong>no es tu culpa</strong> y que
+          mereces estar a salvo. Una persona adulta de confianza puede ayudarte.
+        </p>
+        <button id="btn-limpiar" class="btn-secundario">Empezar de nuevo</button>
+      </div>
+    </section>
+
+    <!-- Recordatorios de seguridad (Regla de Kiko) -->
+    <section class="bloque bloque-reglas" aria-labelledby="reglas-titulo">
+      <h2 id="reglas-titulo">Recuerda siempre 🌟</h2>
+      <ul class="reglas-lista">
+        <li><strong>Tu cuerpo es tuyo.</strong> Tú decides quién puede acercarse o tocarte.</li>
+        <li><strong>Puedes decir «NO».</strong> Aunque sea una persona mayor o conocida.</li>
+        <li><strong>Las zonas privadas</strong> (las que cubre la ropa interior o el traje de baño) <strong>nadie debe tocarlas</strong>, ni pedirte que tú las toques.</li>
+        <li><strong>Los secretos que te hacen sentir mal no se guardan.</strong> Cuéntalos a una persona de confianza.</li>
+        <li><strong>Si algo te pasó, no es tu culpa.</strong> Cuéntalo, y si esa persona no te cree, cuéntaselo a otra.</li>
+      </ul>
+    </section>
+
+    <!-- Ayuda / contactos -->
+    <section class="bloque bloque-ayuda" aria-labelledby="ayuda-titulo">
+      <h2 id="ayuda-titulo">Si necesitas ayuda 📞</h2>
+      <p>
+        Esta página no atiende emergencias. Si hay peligro o una crisis, contacta con una
+        persona adulta de confianza o con un servicio de tu país:
+      </p>
+      <ul class="ayuda-lista">
+        <li>🚨 <strong>Emergencias generales:</strong> llama al número de emergencias de tu país (por ejemplo <strong>112</strong> en muchos países, <strong>911</strong> en gran parte de América).</li>
+        <li>🧒 <strong>Línea de ayuda a la infancia (Europa):</strong> <strong>116 111</strong> (teléfono del menor) · <strong>116 000</strong> (menores desaparecidos).</li>
+        <li>🌎 <strong>Child Helpline International:</strong> directorio de líneas de ayuda por país en <a href="https://childhelplineinternational.org/helplines/" target="_blank" rel="noopener">childhelplineinternational.org</a>.</li>
+        <li>👨‍👩‍👧 Habla con una persona adulta de confianza: madre, padre, familiar, docente, orientador/a o profesional de salud.</li>
+      </ul>
+      <p class="nota-localizar">
+        💡 <em>Nota para familias y centros educativos:</em> sustituye estos números por las
+        líneas de ayuda oficiales de tu localidad antes de usar la herramienta con menores.
+      </p>
+    </section>
+
+    <footer class="pie">
+      <p>
+        Herramienta educativa de prevención basada en los principios de la
+        <strong>«Regla de Kiko»</strong> del Consejo de Europa (campaña <em>«Uno de cada cinco»</em>).
+        Material de apoyo, no sustituye la orientación de profesionales.
+      </p>
+    </footer>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
