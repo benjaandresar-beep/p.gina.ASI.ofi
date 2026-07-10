@@ -1,194 +1,1111 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-CL">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Herramienta interactiva de prevención del abuso sexual infantil: un semáforo del cuerpo para ayudar a niñas y niños a comunicar qué zonas se pueden y no se pueden tocar." />
+  <meta name="description" content="Herramienta educativa de prevención del abuso sexual infantil para niñas y niños en Chile. Semáforo del cuerpo interactivo. Sin recopilación de datos." />
   <title>Mi Cuerpo es Mío · Semáforo del Cuerpo</title>
-  <link rel="stylesheet" href="styles.css" />
+  <style>
+/* =============================================================
+   Mi Cuerpo es Mío · Semáforo del Cuerpo — Chile
+   ============================================================= */
+:root {
+  --verde:         #2e9e4f;
+  --verde-claro:   #d8f3df;
+  --amarillo:      #f4b400;
+  --amarillo-claro:#fdf1cf;
+  --rojo:          #e23b3b;
+  --rojo-claro:    #fbdada;
+  --azul:          #2f6fd0;
+  --azul-oscuro:   #1f4f9c;
+  --texto:         #1f2733;
+  --gris-suave:    #f4f7fb;
+  --borde:         #d8e0ec;
+  --sombra:        0 6px 20px rgba(31,79,156,0.12);
+  --radio:         16px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  color: var(--texto);
+  background: linear-gradient(160deg,#eaf2ff 0%,#f7fbff 40%,#fef8f2 100%);
+  line-height: 1.55;
+}
+
+.oculto { display: none !important; }
+
+/* ---------- Overlay advertencia ---------- */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(20,35,60,0.72);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; z-index: 1000;
+}
+.overlay-card {
+  background: #fff; max-width: 620px; width: 100%;
+  border-radius: 20px; padding: 32px 30px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+  max-height: 92vh; overflow-y: auto;
+}
+.overlay-icon { font-size: 48px; text-align: center; }
+.overlay-card h1 { text-align: center; margin: 6px 0 18px; color: var(--azul-oscuro); font-size: 1.7rem; }
+.overlay-text p { margin: 0 0 14px; }
+.aviso-fuerte { background: var(--rojo-claro); border-left: 6px solid var(--rojo); padding: 12px 14px; border-radius: 8px; }
+.recomendacion { background: var(--verde-claro); border-left: 6px solid var(--verde); padding: 12px 14px; border-radius: 8px; }
+.acepto {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--gris-suave); border: 1px solid var(--borde);
+  border-radius: 12px; padding: 14px; margin: 18px 0; cursor: pointer; font-size: 0.95rem;
+}
+.acepto input { margin-top: 4px; width: 20px; height: 20px; flex: none; cursor: pointer; }
+
+/* ---------- Botones ---------- */
+.btn-primary {
+  display: block; width: 100%; background: var(--azul); color: #fff;
+  border: none; border-radius: 12px; padding: 14px;
+  font-size: 1.1rem; font-weight: 700; cursor: pointer;
+  transition: background .2s, transform .05s; min-height: 44px;
+}
+.btn-primary:hover:not(:disabled) { background: var(--azul-oscuro); }
+.btn-primary:active:not(:disabled) { transform: scale(.99); }
+.btn-primary:disabled { background: #b9c4d6; cursor: not-allowed; }
+
+.btn-secundario {
+  background: #fff; color: var(--azul-oscuro);
+  border: 2px solid var(--azul); border-radius: 10px;
+  padding: 10px 18px; font-weight: 700; cursor: pointer; min-height: 44px;
+}
+.btn-secundario:hover { background: var(--gris-suave); }
+
+.btn-peligro {
+  background: var(--rojo); color: #fff;
+  border: none; border-radius: 10px;
+  padding: 12px 20px; font-size: 1rem; font-weight: 700; cursor: pointer; min-height: 44px;
+}
+.btn-peligro:hover { background: #c02a2a; }
+
+.btn-voltear {
+  background: var(--gris-suave); border: 2px solid var(--borde);
+  border-radius: 10px; padding: 9px 16px; font-size: .95rem; font-weight: 600;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 10px; min-height: 44px; transition: background .15s;
+}
+.btn-voltear:hover { background: #e0e8f5; border-color: var(--azul); }
+
+.btn-voz {
+  background: #eaf2ff; color: var(--azul-oscuro);
+  border: 2px solid var(--azul); border-radius: 999px;
+  padding: 6px 14px; font-size: .9rem; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px; min-height: 36px;
+}
+.btn-voz:hover { background: #d0e4ff; }
+
+/* ---------- Toggle modo adulto ---------- */
+.toggle-adulto {
+  display: flex; align-items: center; gap: 10px;
+  background: #fffbe8; border: 1px solid #f4d04e;
+  border-radius: 12px; padding: 10px 16px;
+  margin: 10px auto 0; max-width: 980px; font-size: .95rem; cursor: pointer;
+}
+.toggle-adulto input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+.nota-adulto {
+  background: #fffbe8; border-left: 4px solid var(--amarillo);
+  border-radius: 8px; padding: 8px 12px;
+  font-size: .88rem; color: #5a4a00; margin-top: 8px;
+}
+body:not(.modo-adulto) .nota-adulto { display: none; }
+
+/* ---------- Layout principal ---------- */
+.cabecera { text-align: center; padding: 30px 20px 10px; }
+.cabecera h1 { margin: 0; font-size: 2.1rem; color: var(--azul-oscuro); }
+.subtitulo { margin: 6px 0 0; font-size: 1.05rem; color: #45556c; }
+.privacidad-aviso { font-size: .82rem; color: #6a7892; margin: 6px auto 0; max-width: 600px; }
+
+.bloque {
+  max-width: 980px; margin: 22px auto;
+  background: #fff; border: 1px solid var(--borde);
+  border-radius: var(--radio); box-shadow: var(--sombra); padding: 24px 26px;
+}
+.bloque h2 { margin: 0 0 6px; color: var(--azul-oscuro); }
+.ayuda { margin: 0 0 16px; color: #50607a; }
+
+/* ---------- Selector personaje ---------- */
+.selector-personaje { display: flex; gap: 12px; flex-wrap: wrap; }
+.chip-personaje {
+  border: 2px solid var(--borde); background: #fff;
+  border-radius: 999px; padding: 10px 18px;
+  font-size: 1rem; font-weight: 600; cursor: pointer; transition: all .15s; min-height: 44px;
+}
+.chip-personaje:hover { border-color: var(--azul); }
+.chip-personaje.activo { background: var(--azul); color: #fff; border-color: var(--azul); }
+
+/* ---------- Flip card ---------- */
+.cuerpo-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+@media (max-width: 760px) { .cuerpo-layout { grid-template-columns: 1fr; } }
+
+.figura-contenedor { text-align: center; }
+
+.tarjeta-flip { perspective: 900px; width: 100%; max-width: 300px; margin: 0 auto; }
+.tarjeta-interior {
+  position: relative; transform-style: preserve-3d;
+  transition: transform .4s cubic-bezier(.45,.05,.55,.95);
+  width: 100%; padding-bottom: 213.33%;
+}
+@media (prefers-reduced-motion: reduce) { .tarjeta-interior { transition: none; } }
+.tarjeta-interior.volteada { transform: rotateY(180deg); }
+
+.cara-frente, .cara-espalda {
+  position: absolute; inset: 0;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+.cara-espalda { transform: rotateY(180deg); }
+.cara-frente svg, .cara-espalda svg {
+  width: 100%; height: 100%;
+  background: var(--gris-suave); border-radius: var(--radio); padding: 10px;
+  display: block;
+}
+
+/* Zonas interactivas SVG */
+.zona {
+  cursor: pointer; transition: opacity .15s, stroke-width .15s;
+  stroke: #fff; stroke-width: 2; opacity: .78;
+}
+.zona:hover, .zona:focus { opacity: 1; stroke-width: 3.5; outline: 2px solid rgba(47,111,208,.6); outline-offset: 2px; }
+.zona.seleccionada { stroke: #1f2733; stroke-width: 4; opacity: 1; }
+.zona-verde    { fill: url(#pat-verde);    }
+.zona-amarillo { fill: url(#pat-amarillo); }
+.zona-rojo     { fill: url(#pat-rojo);     }
+
+.figura-base  { fill: #f6d7bf; stroke: #e2b48f; stroke-width: 1.5; }
+.figura-pelo  { fill: #6b4a2b; }
+.figura-ropa  { fill: #3a6ea5; }
+.figura-rasgo { fill: #4a3826; }
+
+/* Leyenda */
+.leyenda { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; text-align: left; font-size: .9rem; }
+.leyenda-item { display: flex; align-items: center; gap: 8px; }
+.punto { width: 16px; height: 16px; border-radius: 50%; display: inline-block; flex: none; }
+.punto.verde    { background: var(--verde); }
+.punto.amarillo { background: var(--amarillo); }
+.punto.rojo     { background: var(--rojo); }
+
+/* Panel info */
+.panel-info { background: var(--gris-suave); border: 1px solid var(--borde); border-radius: var(--radio); padding: 20px; min-height: 240px; }
+.panel-vacio { text-align: center; color: #6a7892; padding-top: 40px; }
+.panel-emoji { font-size: 38px; display: block; margin-bottom: 8px; }
+.panel-detalle .panel-encabezado { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.panel-detalle .etiqueta-color {
+  font-size: .8rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .5px; padding: 4px 12px; border-radius: 999px; color: #fff;
+}
+.etiqueta-color.verde    { background: var(--verde); }
+.etiqueta-color.amarillo { background: var(--amarillo); color: #5a4400; }
+.etiqueta-color.rojo     { background: var(--rojo); }
+.panel-detalle h3 { margin: 0; font-size: 1.3rem; }
+.panel-detalle .panel-sub  { margin: 4px 0 8px; color: #50607a; }
+.panel-detalle .panel-desc { margin: 8px 0; }
+.panel-detalle .panel-tip  { background: #fff; border-left: 5px solid var(--azul); border-radius: 8px; padding: 10px 12px; font-size: .95rem; }
+
+/* ---------- Semáforo comunicación ---------- */
+.bloque-semaforo { background: #fff; }
+.semaforo-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+@media (max-width: 760px) { .semaforo-layout { grid-template-columns: 1fr; } }
+.sem-paso h3 { margin: 0 0 12px; color: var(--azul-oscuro); }
+
+.zonas-botones { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn-zona {
+  border: 2px solid var(--borde); background: #fff; border-radius: 10px;
+  padding: 8px 12px; font-size: .92rem; cursor: pointer;
+  display: flex; align-items: center; gap: 7px; min-height: 44px;
+}
+.btn-zona:hover { border-color: var(--azul); }
+.btn-zona.activo { border-color: var(--azul); background: #eaf2ff; font-weight: 700; }
+.btn-zona .mini-punto { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.btn-zona .mini-punto.verde    { background: var(--verde); }
+.btn-zona .mini-punto.amarillo { background: var(--amarillo); }
+.btn-zona .mini-punto.rojo     { background: var(--rojo); }
+
+.semaforo { background: #2b3340; border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.luz {
+  display: flex; align-items: center; gap: 14px;
+  background: rgba(255,255,255,.06); border: 2px solid transparent;
+  border-radius: 12px; padding: 12px 14px; cursor: pointer;
+  text-align: left; color: #f3f6fb;
+  transition: background .15s, border-color .15s; min-height: 44px; width: 100%;
+}
+.luz:hover { background: rgba(255,255,255,.14); }
+.luz-circulo { width: 42px; height: 42px; border-radius: 50%; flex: none; opacity: .45; transition: opacity .2s, box-shadow .2s; }
+.luz-rojo    .luz-circulo { background: var(--rojo); }
+.luz-amarillo .luz-circulo { background: var(--amarillo); }
+.luz-verde   .luz-circulo { background: var(--verde); }
+.luz-texto { font-size: .95rem; font-weight: 600; }
+.luz.activo { border-color: #fff; background: rgba(255,255,255,.18); }
+.luz.activo .luz-circulo { opacity: 1; }
+.luz-rojo.activo    .luz-circulo { box-shadow: 0 0 18px 4px var(--rojo); }
+.luz-amarillo.activo .luz-circulo { box-shadow: 0 0 18px 4px var(--amarillo); }
+.luz-verde.activo   .luz-circulo { box-shadow: 0 0 18px 4px var(--verde); }
+
+/* Mensaje resultado */
+.mensaje-resultado { margin-top: 22px; border-radius: var(--radio); padding: 20px 22px; }
+.mensaje-resultado.tipo-rojo    { background: var(--rojo-claro);    border: 2px solid var(--rojo); }
+.mensaje-resultado.tipo-amarillo{ background: var(--amarillo-claro); border: 1px solid #e8c840; }
+.mensaje-resultado.tipo-verde   { background: var(--verde-claro);   border: 1px solid #bfe6cb; }
+.mensaje-resultado h3 { margin: 0 0 10px; color: var(--azul-oscuro); }
+#mensaje-texto  { font-size: 1.05rem; font-weight: 600; }
+.mensaje-nota   { font-size: .95rem; margin: 8px 0; }
+.msg-no-envia   { background: rgba(0,0,0,.06); border-radius: 8px; padding: 8px 12px; font-size: .9rem; margin: 10px 0; }
+.mensaje-acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+
+/* Panel adulto expandible */
+.panel-adulto-expand {
+  margin-top: 16px; background: #fff;
+  border: 2px solid var(--rojo); border-radius: 14px; padding: 18px;
+}
+.panel-adulto-expand h4 { margin: 0 0 8px; color: var(--rojo); font-size: 1.1rem; }
+.nums-lista { list-style: none; padding: 0; margin: 8px 0; }
+.nums-lista li { margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: .97rem; }
+.num-tel {
+  display: inline-flex; align-items: center;
+  background: var(--rojo); color: #fff; border-radius: 999px;
+  padding: 4px 16px; font-weight: 700; text-decoration: none; font-size: 1.05rem;
+}
+.num-tel:hover { background: #c02a2a; }
+
+/* ---------- Reglas y ayuda ---------- */
+.bloque-reglas { background: linear-gradient(135deg,#fffdf4,#fff); }
+.bloque-ayuda  { background: linear-gradient(135deg,#fef4f4,#fff); }
+.reglas-lista, .ayuda-lista { padding-left: 22px; }
+.reglas-lista li, .ayuda-lista li { margin-bottom: 10px; }
+
+.urgencia-bloque { background: var(--rojo-claro); border: 2px solid var(--rojo); border-radius: 14px; padding: 16px 18px; margin-bottom: 18px; }
+.urgencia-bloque h3 { margin: 0 0 10px; color: var(--rojo); }
+.ninez-bloque { background: var(--gris-suave); border: 1px solid var(--borde); border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; }
+.ninez-bloque h3 { margin: 0 0 10px; color: var(--azul-oscuro); }
+
+.numeros-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(190px,1fr)); gap: 10px; margin: 12px 0; }
+.num-card { background: #fff; border: 1px solid var(--borde); border-radius: 12px; padding: 12px 14px; text-align: center; }
+.num-card .nt { font-size: .82rem; color: #50607a; margin-bottom: 4px; }
+.num-card a[href^="tel:"] { display: block; font-size: 1.6rem; font-weight: 700; color: var(--rojo); text-decoration: none; line-height: 1.2; }
+.num-card a[href^="tel:"]:hover { text-decoration: underline; }
+.num-card .nd { font-size: .8rem; color: #6a7892; margin-top: 4px; }
+
+.nota-localizar { font-size: .9rem; background: var(--gris-suave); border-radius: 10px; padding: 12px; margin-top: 12px; }
+.placeholder-opd { display: block; border: 2px dashed var(--borde); border-radius: 10px; padding: 12px; font-size: .92rem; color: #6a7892; margin-top: 10px; font-style: italic; }
+
+/* ---------- Pie ---------- */
+.pie { max-width: 980px; margin: 10px auto 40px; padding: 0 26px; text-align: center; font-size: .85rem; color: #6a7892; }
+a { color: var(--azul); }
+a:focus { outline: 2px solid var(--azul); outline-offset: 2px; border-radius: 2px; }
+:focus-visible { outline: 2px solid var(--azul); outline-offset: 3px; }
+
+/* ---------- Print ---------- */
+@media print {
+  #advertencia,
+  .toggle-adulto,
+  section[aria-labelledby="sel-titulo"],
+  section[aria-labelledby="cuerpo-titulo"],
+  .sem-paso:first-child,
+  .semaforo,
+  .btn-voltear, .btn-voz,
+  #btn-limpiar, #btn-imprimir, #btn-mostrar-adulto, #btn-voz-mensaje { display: none !important; }
+
+  body { background: white; }
+  .bloque { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+  #panel-adulto-expand { display: block !important; }
+  .mensaje-resultado { display: block !important; }
+  .num-tel { background: #000 !important; }
+  .num-card a[href^="tel:"] { color: #000 !important; }
+}
+  </style>
 </head>
 <body>
 
-  <!-- ============================================================
-       ADVERTENCIA / DISCLAIMER (se muestra antes de la página)
-       ============================================================ -->
-  <div id="advertencia" class="overlay" role="dialog" aria-modal="true" aria-labelledby="adv-titulo" aria-describedby="adv-texto">
-    <div class="overlay-card">
-      <div class="overlay-icon" aria-hidden="true">⚠️</div>
-      <h1 id="adv-titulo">Antes de empezar</h1>
-      <div id="adv-texto" class="overlay-text">
-        <p>
-          Esta página tiene un propósito <strong>únicamente informativo y de prevención</strong>.
-          Es una herramienta para acompañar a niñas y niños y ayudarles a reconocer y
-          comunicar qué partes del cuerpo se pueden tocar y cuáles no.
-        </p>
-        <p class="aviso-fuerte">
-          ⛔ Esta página <strong>no</strong> es un servicio de emergencia ni sirve para
-          atender una crisis emocional, una urgencia o una situación de peligro inmediato.
-        </p>
-        <p>
-          Si tú o un niño o niña están viviendo una situación de peligro, daño o una crisis
-          emocional <strong>ahora mismo</strong>, busca de inmediato a una persona adulta de
-          confianza o contacta con los servicios de ayuda de tu país (ver la sección
-          <em>«Si necesitas ayuda»</em> al final de la página).
-        </p>
-        <p class="recomendacion">
-          💛 Recomendamos que esta herramienta se use <strong>acompañada de una persona
-          adulta de confianza</strong> (madre, padre, cuidador/a, docente o profesional).
-        </p>
-      </div>
+<!-- Defs SVG compartidos (daltonismo: patrones de textura) -->
+<svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <defs>
+    <pattern id="pat-verde"    patternUnits="userSpaceOnUse" width="10" height="10">
+      <rect width="10" height="10" fill="#2e9e4f"/>
+    </pattern>
+    <pattern id="pat-amarillo" patternUnits="userSpaceOnUse" width="10" height="10">
+      <rect width="10" height="10" fill="#f4b400"/>
+      <line x1="0" y1="5" x2="10" y2="5" stroke="rgba(0,0,0,0.2)" stroke-width="2"/>
+    </pattern>
+    <pattern id="pat-rojo"     patternUnits="userSpaceOnUse" width="10" height="10">
+      <rect width="10" height="10" fill="#e23b3b"/>
+      <line x1="0" y1="0"  x2="10" y2="10" stroke="rgba(0,0,0,0.2)" stroke-width="2"/>
+    </pattern>
+  </defs>
+</svg>
 
-      <label class="acepto">
-        <input type="checkbox" id="adv-check" />
-        <span>He leído y entiendo que esta página es informativa y de prevención, y que no
-        reemplaza la ayuda de un profesional ni de un servicio de emergencia.</span>
-      </label>
-
-      <button id="adv-entrar" class="btn-primary" disabled>Entrar</button>
-    </div>
-  </div>
-
-  <!-- ============================================================
-       PÁGINA PRINCIPAL
-       ============================================================ -->
-  <main id="pagina" class="oculto">
-
-    <header class="cabecera">
-      <h1>Mi cuerpo es mío 💙</h1>
-      <p class="subtitulo">El semáforo del cuerpo: aprende y cuenta qué zonas se pueden tocar y cuáles no.</p>
-    </header>
-
-    <!-- Selector de personaje -->
-    <section class="bloque" aria-labelledby="sel-titulo">
-      <h2 id="sel-titulo">1. Elige tu personaje</h2>
-      <p class="ayuda">Puedes cambiar entre diferentes personajes. Todos tienen las mismas reglas.</p>
-      <div class="selector-personaje" role="group" aria-label="Seleccionar personaje">
-        <button class="chip-personaje activo" data-genero="neutro">🧒 Otro / Neutro</button>
-        <button class="chip-personaje" data-genero="femenino">👧 Femenino</button>
-        <button class="chip-personaje" data-genero="masculino">👦 Masculino</button>
-      </div>
-    </section>
-
-    <!-- Figura interactiva + panel de información -->
-    <section class="bloque" aria-labelledby="cuerpo-titulo">
-      <h2 id="cuerpo-titulo">2. Toca una zona del cuerpo</h2>
-      <p class="ayuda">Pulsa cualquier zona del personaje para saber si esa parte se puede tocar o no.</p>
-
-      <div class="cuerpo-layout">
-        <div class="figura-contenedor">
-          <svg id="figura" viewBox="0 0 300 640" role="img" aria-label="Figura del cuerpo con zonas de colores tipo semáforo. Pulsa una zona para más información.">
-            <!-- El contenido se dibuja con JavaScript (script.js) -->
-          </svg>
-
-          <!-- Leyenda del semáforo del cuerpo -->
-          <div class="leyenda" aria-hidden="false">
-            <span class="leyenda-item"><span class="punto verde"></span> Verde · se puede tocar (con tu permiso)</span>
-            <span class="leyenda-item"><span class="punto amarillo"></span> Amarillo · depende, presta atención</span>
-            <span class="leyenda-item"><span class="punto rojo"></span> Rojo · zona privada, nadie debe tocar</span>
-          </div>
-        </div>
-
-        <aside id="panel-info" class="panel-info" aria-live="polite">
-          <div class="panel-vacio">
-            <span class="panel-emoji" aria-hidden="true">👆</span>
-            <p>Pulsa una zona del cuerpo para ver qué significa su color.</p>
-          </div>
-        </aside>
-      </div>
-    </section>
-
-    <!-- Semáforo de comunicación (para que el niño/a exprese cómo se siente) -->
-    <section class="bloque bloque-semaforo" aria-labelledby="sem-titulo">
-      <h2 id="sem-titulo">3. El semáforo: cuéntanos cómo te sientes</h2>
-      <p class="ayuda">
-        Si te cuesta hablar, puedes <strong>usar los colores</strong>. Elige primero la zona y
-        luego el color del semáforo que muestre cómo te sientes. Una persona adulta de confianza
-        podrá leer tu mensaje.
+<!-- ============================================================
+     ADVERTENCIA INICIAL
+     ============================================================ -->
+<div id="advertencia" class="overlay" role="dialog" aria-modal="true"
+     aria-labelledby="adv-titulo" aria-describedby="adv-texto">
+  <div class="overlay-card">
+    <div class="overlay-icon" aria-hidden="true">⚠️</div>
+    <h1 id="adv-titulo">Antes de empezar</h1>
+    <div id="adv-texto" class="overlay-text">
+      <p>
+        Esta página tiene un propósito <strong>únicamente educativo y de prevención</strong>.
+        Es una herramienta para acompañar a niñas y niños y ayudarles a reconocer y
+        comunicar qué partes del cuerpo se pueden tocar y cuáles no.
       </p>
+      <p class="aviso-fuerte">
+        ⛔ Esta página <strong>no</strong> es un servicio de emergencia ni sirve para
+        atender una crisis ni una situación de peligro <strong>ahora mismo</strong>.
+        Si hay peligro, llama al <strong>133</strong> (Carabineros) de inmediato.
+      </p>
+      <p>
+        Si una niña o niño está viviendo una situación de daño <strong>ahora</strong>,
+        busca de inmediato a una persona adulta de confianza o llama al
+        <strong>147</strong> (Fono Niños, Carabineros) — gratuito y confidencial, 24 horas.
+      </p>
+      <p class="recomendacion">
+        💛 Se recomienda usar esta herramienta <strong>acompañada de una persona adulta
+        de confianza</strong> (mamá, papá, familiar, docente o profesional).
+      </p>
+      <p style="font-size:.85rem;color:#6a7892;margin:0">
+        🔒 Esta herramienta <strong>no recopila ni envía datos</strong>. Todo ocurre en tu dispositivo.
+        Sin cookies, sin historial, sin analytics.
+      </p>
+    </div>
+    <label class="acepto">
+      <input type="checkbox" id="adv-check" />
+      <span>Entiendo que esta página es educativa y de prevención, y que no reemplaza
+      la ayuda de un profesional ni de un servicio de emergencia.</span>
+    </label>
+    <button id="adv-entrar" class="btn-primary" disabled>Entrar</button>
+  </div>
+</div>
 
-      <div class="semaforo-layout">
+<!-- ============================================================
+     PÁGINA PRINCIPAL
+     ============================================================ -->
+<main id="pagina" class="oculto">
 
-        <!-- Paso A: zona del cuerpo -->
-        <div class="sem-paso">
-          <h3>a) ¿Qué zona?</h3>
-          <div id="zonas-botones" class="zonas-botones" role="group" aria-label="Elegir zona del cuerpo">
-            <!-- Botones generados por JavaScript -->
+  <header class="cabecera">
+    <h1>Mi cuerpo es mío 💙</h1>
+    <p class="subtitulo">El semáforo del cuerpo: aprende y cuenta qué zonas se pueden tocar y cuáles no.</p>
+    <p class="privacidad-aviso">🔒 Sin cookies · Sin analytics · Sin recopilación de datos. Todo ocurre en tu dispositivo.</p>
+  </header>
+
+  <!-- Toggle modo acompañante adulto -->
+  <label class="toggle-adulto" for="chk-adulto">
+    <input type="checkbox" id="chk-adulto" />
+    <span>👨‍👩‍👧 Modo acompañante — mostrar notas para el adulto en cada paso</span>
+  </label>
+
+  <!-- SECCIÓN 1: Selector de personaje -->
+  <section class="bloque" aria-labelledby="sel-titulo">
+    <h2 id="sel-titulo">1. Elige tu personaje</h2>
+    <p class="ayuda">Puedes cambiar entre diferentes personajes. Todos tienen las mismas reglas.</p>
+    <p class="nota-adulto">👨‍👩‍👧 <strong>Para el adulto:</strong> invita a la niña o niño a elegir el personaje con el que más se identifica. El mensaje del semáforo es igual para todos.</p>
+    <div class="selector-personaje" role="group" aria-label="Seleccionar personaje">
+      <button class="chip-personaje activo" data-genero="neutro">🧒 Otro / Neutro</button>
+      <button class="chip-personaje" data-genero="femenino">👧 Femenino</button>
+      <button class="chip-personaje" data-genero="masculino">👦 Masculino</button>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 2: Figura interactiva -->
+  <section class="bloque" aria-labelledby="cuerpo-titulo">
+    <h2 id="cuerpo-titulo">2. Toca una zona del cuerpo</h2>
+    <p class="ayuda">Pulsa una zona para saber si se puede tocar o no. Voltea al personaje para ver su espalda.</p>
+    <p class="nota-adulto">👨‍👩‍👧 <strong>Para el adulto:</strong> acompañe mientras exploran las zonas. Ante una zona roja, diga: «Esta zona es privada. Nadie debe tocarla sin tu permiso».</p>
+
+    <div class="cuerpo-layout">
+      <div class="figura-contenedor">
+        <div class="tarjeta-flip" id="tarjeta-flip">
+          <div class="tarjeta-interior" id="tarjeta-interior">
+            <div class="cara-frente">
+              <svg id="figura-frente" viewBox="0 0 300 640"
+                   role="img" aria-label="Vista de frente del personaje. Pulsa una zona coloreada para ver qué significa.">
+              </svg>
+            </div>
+            <div class="cara-espalda">
+              <svg id="figura-espalda" viewBox="0 0 300 640"
+                   role="img" aria-label="Vista de espalda del personaje. Pulsa una zona coloreada para ver qué significa.">
+              </svg>
+            </div>
           </div>
         </div>
 
-        <!-- Paso B: el semáforo interactivo -->
-        <div class="sem-paso">
-          <h3>b) ¿Cómo te sientes?</h3>
-          <div class="semaforo" role="group" aria-label="Semáforo de emociones">
-            <button class="luz luz-rojo" data-sentir="rojo" aria-label="Rojo: algo me hizo sentir mal o tocaron una zona privada">
-              <span class="luz-circulo"></span>
-              <span class="luz-texto">Algo me hizo sentir mal o tocaron una zona privada. Necesito ayuda.</span>
-            </button>
-            <button class="luz luz-amarillo" data-sentir="amarillo" aria-label="Amarillo: algo me incomoda o me confunde">
-              <span class="luz-circulo"></span>
-              <span class="luz-texto">Algo me incomoda o me confunde. No estoy seguro/a.</span>
-            </button>
-            <button class="luz luz-verde" data-sentir="verde" aria-label="Verde: me siento seguro y bien">
-              <span class="luz-circulo"></span>
-              <span class="luz-texto">Me siento seguro/a y bien.</span>
-            </button>
-          </div>
+        <button class="btn-voltear" id="btn-voltear" aria-label="Voltear para ver la espalda del personaje">
+          🔄 Voltear
+        </button>
+
+        <div class="leyenda" aria-label="Leyenda del semáforo del cuerpo">
+          <span class="leyenda-item"><span class="punto verde" aria-hidden="true"></span> Verde — se puede tocar (con tu permiso)</span>
+          <span class="leyenda-item"><span class="punto amarillo" aria-hidden="true"></span> Amarillo — depende, presta atención</span>
+          <span class="leyenda-item"><span class="punto rojo" aria-hidden="true"></span> Rojo — zona privada, nadie debe tocar</span>
         </div>
       </div>
 
-      <!-- Mensaje resultante para la persona adulta -->
-      <div id="mensaje-resultado" class="mensaje-resultado oculto" aria-live="polite">
-        <h3>📨 Mensaje para la persona adulta de confianza</h3>
-        <p id="mensaje-texto"></p>
-        <p class="mensaje-nota">
-          Gracias por contarlo. Lo más importante es que <strong>no es tu culpa</strong> y que
-          mereces estar a salvo. Una persona adulta de confianza puede ayudarte.
-        </p>
+      <aside id="panel-info" class="panel-info" aria-live="polite" aria-label="Información de la zona seleccionada">
+        <div class="panel-vacio">
+          <span class="panel-emoji" aria-hidden="true">👆</span>
+          <p>Pulsa una zona del cuerpo para ver qué significa su color.</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 3: Semáforo de comunicación -->
+  <section class="bloque bloque-semaforo" aria-labelledby="sem-titulo">
+    <h2 id="sem-titulo">3. El semáforo: cuéntanos cómo te sientes</h2>
+    <p class="ayuda">Si te cuesta hablar, puedes <strong>usar los colores</strong>. Elige la zona y luego el color que mejor muestre cómo te sientes.</p>
+    <p class="nota-adulto">👨‍👩‍👧 <strong>Para el adulto:</strong> si elige rojo, mantenga la calma, créale y dígale que no es su culpa. Luego toque «Mostrar a un adulto» para ver los números de ayuda.</p>
+
+    <div class="semaforo-layout">
+      <div class="sem-paso">
+        <h3>a) ¿Qué zona?</h3>
+        <div id="zonas-botones" class="zonas-botones" role="group" aria-label="Elegir zona del cuerpo"></div>
+      </div>
+      <div class="sem-paso">
+        <h3>b) ¿Cómo te sientes?</h3>
+        <div class="semaforo" role="group" aria-label="Semáforo de emociones">
+          <button class="luz luz-rojo" data-sentir="rojo"
+                  aria-label="Rojo: algo me hizo sentir mal o tocaron una zona privada. Necesito ayuda.">
+            <span class="luz-circulo"></span>
+            <span class="luz-texto">Algo me hizo sentir mal o tocaron una zona privada. Necesito ayuda.</span>
+          </button>
+          <button class="luz luz-amarillo" data-sentir="amarillo"
+                  aria-label="Amarillo: algo me incomoda o me confunde. No estoy seguro/a.">
+            <span class="luz-circulo"></span>
+            <span class="luz-texto">Algo me incomoda o me confunde. No estoy seguro/a.</span>
+          </button>
+          <button class="luz luz-verde" data-sentir="verde"
+                  aria-label="Verde: me siento seguro/a y bien.">
+            <span class="luz-circulo"></span>
+            <span class="luz-texto">Me siento seguro/a y bien.</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensaje resultado -->
+    <div id="mensaje-resultado" class="mensaje-resultado oculto" aria-live="polite">
+      <h3 id="msg-titulo"></h3>
+      <p id="mensaje-texto"></p>
+      <p class="mensaje-nota" id="msg-nota"></p>
+      <div class="msg-no-envia" id="msg-no-envia" style="display:none">
+        🔒 Esta página <strong>no avisa a nadie sola</strong> ni envía información a ningún lugar.
+        Lo más importante ahora es <strong>mostrarle esto a una persona adulta de confianza</strong>.
+      </div>
+      <div class="mensaje-acciones">
+        <button id="btn-mostrar-adulto" class="btn-peligro" style="display:none">
+          👨‍👩‍👧 Mostrar a un adulto
+        </button>
+        <button id="btn-imprimir" class="btn-secundario" style="display:none">
+          🖨️ Imprimir / guardar PDF
+        </button>
+        <button id="btn-voz-mensaje" class="btn-voz" style="display:none" aria-label="Leer mensaje en voz alta">
+          🔊 Escuchar
+        </button>
         <button id="btn-limpiar" class="btn-secundario">Empezar de nuevo</button>
       </div>
-    </section>
 
-    <!-- Recordatorios de seguridad (Regla de Kiko) -->
-    <section class="bloque bloque-reglas" aria-labelledby="reglas-titulo">
-      <h2 id="reglas-titulo">Recuerda siempre 🌟</h2>
-      <ul class="reglas-lista">
-        <li><strong>Tu cuerpo es tuyo.</strong> Tú decides quién puede acercarse o tocarte.</li>
-        <li><strong>Puedes decir «NO».</strong> Aunque sea una persona mayor o conocida.</li>
-        <li><strong>Las zonas privadas</strong> (las que cubre la ropa interior o el traje de baño) <strong>nadie debe tocarlas</strong>, ni pedirte que tú las toques.</li>
-        <li><strong>Los secretos que te hacen sentir mal no se guardan.</strong> Cuéntalos a una persona de confianza.</li>
-        <li><strong>Si algo te pasó, no es tu culpa.</strong> Cuéntalo, y si esa persona no te cree, cuéntaselo a otra.</li>
-      </ul>
-    </section>
+      <!-- Panel adulto con números chilenos -->
+      <div id="panel-adulto-expand" class="panel-adulto-expand oculto">
+        <h4>📞 Números de ayuda en Chile</h4>
+        <p style="font-size:.9rem;margin:0 0 10px">Muestra esta pantalla a un adulto de confianza o llama ahora:</p>
+        <ul class="nums-lista">
+          <li>🚨 <strong>Peligro ahora:</strong> <a class="num-tel" href="tel:133">133</a> Carabineros</li>
+          <li>🏥 <strong>Ambulancia:</strong> <a class="num-tel" href="tel:131">131</a> SAMU</li>
+          <li>🧒 <strong>Fono Niños:</strong> <a class="num-tel" href="tel:147">147</a> — 24 h, gratuito y confidencial</li>
+          <li>👨‍👩‍👧 <strong>Fono Familia:</strong> <a class="num-tel" href="tel:149">149</a> — violencia intrafamiliar, 24 h</li>
+          <li>💬 <strong>Línea Libre:</strong> <a class="num-tel" href="tel:1515">1515</a> — salud mental NNA</li>
+          <li>📱 <strong>Denuncia anónima:</strong> marca <strong>*4242</strong> desde tu celular (gratuito)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
 
-    <!-- Ayuda / contactos -->
-    <section class="bloque bloque-ayuda" aria-labelledby="ayuda-titulo">
-      <h2 id="ayuda-titulo">Si necesitas ayuda 📞</h2>
-      <p>
-        Esta página no atiende emergencias. Si hay peligro o una crisis, contacta con una
-        persona adulta de confianza o con un servicio de tu país:
+  <!-- Reglas -->
+  <section class="bloque bloque-reglas" aria-labelledby="reglas-titulo">
+    <h2 id="reglas-titulo">Recuerda siempre 🌟</h2>
+    <ul class="reglas-lista">
+      <li><strong>Tu cuerpo es tuyo.</strong> Tú decides quién puede acercarse o tocarte.</li>
+      <li><strong>Puedes decir «NO».</strong> Aunque sea una persona mayor o conocida.</li>
+      <li><strong>Las zonas privadas</strong> (las que cubre la ropa interior o el traje de baño)
+          <strong>nadie debe tocarlas</strong>, ni pedirte que tú las toques.</li>
+      <li><strong>Los secretos que te hacen sentir mal no se guardan.</strong>
+          Cuéntalos a una persona de confianza.</li>
+      <li><strong>Si algo te pasó, no es tu culpa.</strong>
+          Cuéntalo, y si esa persona no te cree, cuéntaselo a otra.</li>
+    </ul>
+  </section>
+
+  <!-- Ayuda / contactos chilenos -->
+  <!-- VERIFICAR antes de publicar — fuente: Carabineros / ChileAtiende / Fono Infancia / Línea Libre -->
+  <section class="bloque bloque-ayuda" aria-labelledby="ayuda-titulo">
+    <h2 id="ayuda-titulo">Si necesitas ayuda 📞</h2>
+    <p>Esta página <strong>no atiende emergencias</strong>. Si hay peligro o una crisis,
+       contacta de inmediato a una persona adulta de confianza o llama a una de estas líneas:</p>
+
+    <div class="urgencia-bloque">
+      <h3>🚨 Si hay peligro AHORA</h3>
+      <div class="numeros-grid">
+        <div class="num-card">
+          <div class="nt">Carabineros</div>
+          <a href="tel:133">133</a>
+          <div class="nd">Emergencias</div>
+        </div>
+        <div class="num-card">
+          <div class="nt">SAMU</div>
+          <a href="tel:131">131</a>
+          <div class="nd">Ambulancia</div>
+        </div>
+        <div class="num-card">
+          <div class="nt">Bomberos</div>
+          <a href="tel:132">132</a>
+          <div class="nd">Incendio / rescate</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ninez-bloque">
+      <h3>🧒 Líneas para niñas, niños y familias</h3>
+      <div class="numeros-grid">
+        <div class="num-card">
+          <div class="nt">Fono Niños · Carabineros</div>
+          <a href="tel:147">147</a>
+          <div class="nd">NNA víctimas o con derechos vulnerados. 24 h, gratuito y confidencial.</div>
+        </div>
+        <div class="num-card">
+          <div class="nt">Fono Familia · Carabineros</div>
+          <a href="tel:149">149</a>
+          <div class="nd">Violencia intrafamiliar. 24 h.</div>
+        </div>
+        <div class="num-card">
+          <div class="nt">Línea Libre · Fund. para la Confianza</div>
+          <a href="tel:1515">1515</a>
+          <div class="nd">Salud mental NNA y adolescentes. Fono y chat.</div>
+        </div>
+        <div class="num-card">
+          <div class="nt">Fono Infancia · Chile Crece Contigo</div>
+          <a href="tel:800200818">800 200 818</a>
+          <div class="nd">Orientación a cuidadores. Lun–Vie.</div>
+        </div>
+      </div>
+      <p style="margin-top:10px;font-size:.9rem">
+        📱 <strong>Denuncia anónima:</strong> marca <strong>*4242</strong> desde tu celular
+        (Subsecretaría de Prevención del Delito). Gratuito.
       </p>
-      <ul class="ayuda-lista">
-        <li>🚨 <strong>Emergencias generales:</strong> llama al número de emergencias de tu país (por ejemplo <strong>112</strong> en muchos países, <strong>911</strong> en gran parte de América).</li>
-        <li>🧒 <strong>Línea de ayuda a la infancia (Europa):</strong> <strong>116 111</strong> (teléfono del menor) · <strong>116 000</strong> (menores desaparecidos).</li>
-        <li>🌎 <strong>Child Helpline International:</strong> directorio de líneas de ayuda por país en <a href="https://childhelplineinternational.org/helplines/" target="_blank" rel="noopener">childhelplineinternational.org</a>.</li>
-        <li>👨‍👩‍👧 Habla con una persona adulta de confianza: madre, padre, familiar, docente, orientador/a o profesional de salud.</li>
-      </ul>
-      <p class="nota-localizar">
-        💡 <em>Nota para familias y centros educativos:</em> sustituye estos números por las
-        líneas de ayuda oficiales de tu localidad antes de usar la herramienta con menores.
+      <p style="font-size:.9rem">
+        🖥️ <strong>Denuncia formal en línea:</strong> Fiscalía de Chile con ClaveÚnica
+        o <strong>denunciaseguro.cl</strong>
       </p>
-    </section>
+    </div>
 
-    <footer class="pie">
-      <p>
-        Herramienta educativa de prevención basada en los principios de la
-        <strong>«Regla de Kiko»</strong> del Consejo de Europa (campaña <em>«Uno de cada cinco»</em>).
-        Material de apoyo, no sustituye la orientación de profesionales.
-      </p>
-    </footer>
+    <p class="nota-localizar">
+      💡 <em>Nota para familias y centros educativos:</em> antes de usar esta herramienta
+      con menores, anota aquí la OPD o el contacto local de tu comuna:
+    </p>
+    <span class="placeholder-opd">📝 OPD / contacto local de tu comuna: ___________________________</span>
+  </section>
 
-  </main>
+  <footer class="pie">
+    <p>
+      Herramienta educativa de prevención basada en la <strong>«Regla de Kiko»</strong> del Consejo de Europa.
+      Material de apoyo — no reemplaza la orientación de profesionales.<br>
+      <strong>⛔ Esta página no es un servicio de emergencia.</strong>
+      Si hay peligro, llama al <a href="tel:133"><strong>133</strong></a>.
+    </p>
+    <p style="font-size:.8rem;margin-top:6px">
+      🔒 Sin cookies · Sin analytics · Sin recopilación de datos. Todo ocurre en tu dispositivo.
+    </p>
+  </footer>
 
-  <script src="script.js"></script>
+</main>
+
+<script>
+/* =============================================================
+   Mi Cuerpo es Mío · Semáforo del Cuerpo — Lógica
+   ============================================================= */
+
+/* ----------------------------------------------------------
+   TEXTOS CENTRALIZADOS
+   Edita copy, números y mensajes aquí, sin tocar la lógica.
+   // VERIFICAR antes de publicar — fuente: Carabineros / ChileAtiende / Fono Infancia / Línea Libre
+   ---------------------------------------------------------- */
+const TEXTOS = {
+  nombre_color: {
+    verde:    "Se puede tocar (con tu permiso)",
+    amarillo: "Depende · presta atención",
+    rojo:     "Zona privada · nadie debe tocar"
+  },
+  emoji_color: { verde: "✅", amarillo: "⚠️", rojo: "⛔" },
+  frase_sentir: {
+    rojo:     "Algo me hizo sentir mal o tocaron una zona privada. Necesito ayuda.",
+    amarillo: "Algo me incomoda o me confunde. No estoy seguro/a.",
+    verde:    "Me siento seguro/a y bien."
+  },
+  titulo_resultado: {
+    rojo:     "⛔ Mensaje importante",
+    amarillo: "⚠️ Mensaje para el adulto de confianza",
+    verde:    "✅ Mensaje"
+  },
+  nota_nino: {
+    rojo:     "Gracias por contarlo. Esto NO es tu culpa. Mereces estar a salvo.",
+    amarillo: "Está bien avisarle a un adulto aunque no estés seguro/a de lo que pasó.",
+    verde:    "¡Qué bien! Sigue contando cómo te sientes. Tu adulto de confianza siempre puede escucharte."
+  },
+  guia_adulto: {
+    rojo:     "Mantenga la calma, créale, dígale que no es su culpa y busque ayuda profesional. Llame al 147 (Fono Niños, Carabineros).",
+    amarillo: "Pregúntele con calma y sin presionar qué le incomoda. Hágale saber que puede contar con usted.",
+    verde:    "¡Refuerce esto! Recuérdele que siempre puede contarle cualquier cosa."
+  }
+};
+
+/* ----------------------------------------------------------
+   1. ADVERTENCIA
+   ---------------------------------------------------------- */
+const advCheck   = document.getElementById("adv-check");
+const advEntrar  = document.getElementById("adv-entrar");
+const advertencia = document.getElementById("advertencia");
+const pagina     = document.getElementById("pagina");
+
+advCheck.addEventListener("change", () => { advEntrar.disabled = !advCheck.checked; });
+advEntrar.addEventListener("click", () => {
+  if (!advCheck.checked) return;
+  advertencia.classList.add("oculto");
+  pagina.classList.remove("oculto");
+  window.scrollTo(0, 0);
+});
+
+/* ----------------------------------------------------------
+   2. MODO ACOMPAÑANTE ADULTO
+   ---------------------------------------------------------- */
+document.getElementById("chk-adulto").addEventListener("change", function () {
+  document.body.classList.toggle("modo-adulto", this.checked);
+});
+
+/* ----------------------------------------------------------
+   3. DATOS DE ZONAS
+   figura / figura2  = hotspot frente
+   figEsp / figEsp2  = hotspot espalda
+   ---------------------------------------------------------- */
+const ZONAS = [
+  {
+    id: "cabeza", etiqueta: "Cabeza y cara", tipo: "verde",
+    figura:  { cx:150, cy:66,  rx:40, ry:40 },
+    figEsp:  { cx:150, cy:66,  rx:40, ry:40 },
+    desc: "La cabeza, el pelo y la cara. Normalmente está bien que personas de confianza te despeinen con cariño o te den un beso en la mejilla o la frente.",
+    tip:  "Aun así, tu cuerpo es tuyo: si no quieres un beso o una caricia, puedes decir «no, gracias»."
+  },
+  {
+    id: "boca", etiqueta: "Boca", tipo: "rojo",
+    figura:  { cx:150, cy:92,  rx:18, ry:13 },
+    figEsp:  null,
+    desc: "La boca es una zona privada. Nadie debe darte besos en la boca ni pedirte besos que te incomoden.",
+    tip:  "Un beso en la boca de una persona adulta a un niño o niña no es un secreto: cuéntalo a alguien de confianza."
+  },
+  {
+    id: "cuello", etiqueta: "Cuello", tipo: "amarillo",
+    figura:  { cx:150, cy:112, rx:18, ry:13 },
+    figEsp:  { cx:150, cy:112, rx:18, ry:13 },
+    desc: "El cuello. Depende de la situación y de quién. A veces un abrazo está bien; otras veces puede incomodarte.",
+    tip:  "Presta atención a cómo te sientes. Si algo te incomoda, puedes apartarte y contarlo."
+  },
+  {
+    id: "hombros", etiqueta: "Hombros", tipo: "verde",
+    figura:  { cx:150, cy:128, rx:46, ry:13 },
+    figEsp:  { cx:150, cy:128, rx:46, ry:13 },
+    desc: "Los hombros. Está bien una mano en el hombro de alguien de confianza, por ejemplo para saludar.",
+    tip:  "Si una caricia dura demasiado o te incomoda, puedes decir «no» y alejarte."
+  },
+  {
+    id: "pecho", etiqueta: "Pecho (zona privada)", tipo: "rojo",
+    figura:  { cx:150, cy:175, rx:40, ry:30 },
+    figEsp:  null,
+    desc: "El pecho es una zona privada, de las que cubre la ropa interior o el traje de baño. Nadie debe tocarlo.",
+    tip:  "Nadie debe tocarlo ni pedirte que lo enseñes o lo toques."
+  },
+  {
+    id: "espalda", etiqueta: "Espalda", tipo: "verde",
+    figura:  null,
+    figEsp:  { cx:150, cy:200, rx:42, ry:55 },
+    desc: "La espalda. Está bien un abrazo o una palmadita en la espalda de alguien de confianza.",
+    tip:  "Si algo te incomoda, puedes decirlo y alejarte."
+  },
+  {
+    id: "brazos", etiqueta: "Brazos", tipo: "verde",
+    figura:  { cx:91,  cy:200, rx:15, ry:58 },
+    figura2: { cx:209, cy:200, rx:15, ry:58 },
+    figEsp:  { cx:91,  cy:200, rx:15, ry:58 },
+    figEsp2: { cx:209, cy:200, rx:15, ry:58 },
+    desc: "Los brazos. Está bien chocar los cinco, darse la mano o un abrazo que tú quieras.",
+    tip:  "Tú decides a quién abrazas. Nadie puede obligarte."
+  },
+  {
+    id: "barriga", etiqueta: "Barriga", tipo: "amarillo",
+    figura:  { cx:150, cy:250, rx:34, ry:30 },
+    figEsp:  null,
+    desc: "La barriga. Depende: a veces unas cosquillas con personas de confianza están bien, pero si te incomoda puedes decir basta.",
+    tip:  "«Basta» significa basta. Si alguien no se detiene cuando lo pides, cuéntalo."
+  },
+  {
+    id: "manos", etiqueta: "Manos", tipo: "verde",
+    figura:  { cx:91,  cy:286, rx:22, ry:22 },
+    figura2: { cx:209, cy:286, rx:22, ry:22 },
+    figEsp:  { cx:91,  cy:286, rx:22, ry:22 },
+    figEsp2: { cx:209, cy:286, rx:22, ry:22 },
+    desc: "Las manos. Saludar, dar la mano o chocar los cinco está bien.",
+    tip:  "Nadie debe usar tus manos para que toques sus zonas privadas. Si pasa, cuéntalo."
+  },
+  {
+    id: "intima", etiqueta: "Zona íntima (genitales)", tipo: "rojo",
+    figura:  { cx:150, cy:325, rx:28, ry:26 },
+    figEsp:  null,
+    desc: "Las zonas íntimas son totalmente privadas. Las que cubre la ropa interior o el traje de baño.",
+    tip:  "Nadie debe tocarlas, mirarlas, fotografiarlas ni pedirte que tú las toques. Si pasa, no es tu culpa: cuéntalo."
+  },
+  {
+    id: "gluteos", etiqueta: "Glúteos (parte de atrás)", tipo: "rojo",
+    figura:  null,
+    figEsp:  { cx:150, cy:322, rx:36, ry:30 },
+    desc: "Los glúteos (el traste) son una zona privada. Están en la parte de atrás y los cubre la ropa interior.",
+    tip:  "Nadie debe tocarlos. Si alguien lo hace y te incomoda, cuéntalo a una persona de confianza."
+  },
+  {
+    id: "piernas", etiqueta: "Piernas y rodillas", tipo: "amarillo",
+    figura:  { cx:132, cy:440, rx:17, ry:90 },
+    figura2: { cx:168, cy:440, rx:17, ry:90 },
+    figEsp:  { cx:132, cy:440, rx:17, ry:90 },
+    figEsp2: { cx:168, cy:440, rx:17, ry:90 },
+    desc: "Las piernas y las rodillas. Depende de la situación. La parte cercana a la ropa interior es privada.",
+    tip:  "Si una caricia sube hacia las zonas privadas o te incomoda, di «no» y cuéntalo."
+  },
+  {
+    id: "pies", etiqueta: "Pies", tipo: "verde",
+    figura:  { cx:128, cy:566, rx:22, ry:14 },
+    figura2: { cx:172, cy:566, rx:22, ry:14 },
+    figEsp:  { cx:128, cy:566, rx:22, ry:14 },
+    figEsp2: { cx:172, cy:566, rx:22, ry:14 },
+    desc: "Los pies. Suele estar bien, por ejemplo al jugar o al ponerte los zapatos con ayuda.",
+    tip:  "Si algo te incomoda, siempre puedes decirlo."
+  }
+];
+
+const ZONAS_POR_ID = Object.fromEntries(ZONAS.map(z => [z.id, z]));
+
+/* ----------------------------------------------------------
+   4. DIBUJAR FIGURAS (frente y espalda)
+   ---------------------------------------------------------- */
+const svgF = document.getElementById("figura-frente");
+const svgE = document.getElementById("figura-espalda");
+
+function pelo(genero, esEspalda) {
+  if (genero === "femenino") {
+    return esEspalda
+      ? `<path class="figura-pelo" d="M108,74 Q106,26 150,24 Q194,24 192,74
+           Q196,110 194,210 L180,210 Q186,120 182,68 Q150,48 118,68
+           Q114,120 120,210 L106,210 Q104,110 108,74 Z"/>`
+      : `<path class="figura-pelo" d="M106,74 Q104,26 150,26 Q196,26 194,74
+           Q200,110 196,140 L182,140 Q190,100 184,70 Q150,52 116,70
+           Q110,100 118,140 L104,140 Q100,110 106,74 Z"/>`;
+  }
+  if (genero === "masculino") {
+    return `<path class="figura-pelo" d="M110,70 Q112,32 150,32 Q188,32 190,70
+              Q172,52 150,52 Q128,52 110,70 Z"/>`;
+  }
+  // neutro
+  return esEspalda
+    ? `<path class="figura-pelo" d="M108,74 Q108,28 150,28 Q192,28 192,74
+         Q188,110 186,135 L172,135 Q178,104 174,68 Q150,50 126,68
+         Q122,104 128,135 L114,135 Q112,110 108,74 Z"/>`
+    : `<path class="figura-pelo" d="M108,74 Q108,28 150,28 Q192,28 192,74
+         Q174,54 150,54 Q126,54 108,74 Z"/>`;
+}
+
+function ropa(genero, esEspalda) {
+  // Ropa interior / traje de baño (marca zonas privadas visualmente)
+  let r = esEspalda
+    ? `<path class="figura-ropa" d="M114,298 L186,298 Q190,328 166,350
+         Q150,360 134,350 Q110,328 114,298 Z"/>`
+    : `<path class="figura-ropa" d="M114,300 L186,300 Q192,332 168,352
+         Q150,362 132,352 Q108,332 114,300 Z"/>`;
+
+  if (genero === "femenino") {
+    r += esEspalda
+      ? `<line stroke="#3a6ea5" stroke-width="5" stroke-linecap="round" x1="118" y1="168" x2="182" y2="168"/>
+         <line stroke="#3a6ea5" stroke-width="3" stroke-linecap="round" x1="150" y1="168" x2="150" y2="185"/>`
+      : `<path class="figura-ropa" d="M112,160 Q150,152 188,160 L188,190 Q150,198 112,190 Z"/>`;
+  }
+  return r;
+}
+
+function cuerpoBase(genero, esEspalda) {
+  const p = pelo(genero, esEspalda);
+  const r = ropa(genero, esEspalda);
+  const cara = esEspalda ? "" : `
+    <circle class="figura-rasgo" cx="136" cy="68" r="3.5"/>
+    <circle class="figura-rasgo" cx="164" cy="68" r="3.5"/>
+    <path fill="none" stroke="#a06a4a" stroke-width="2.5" d="M138,90 Q150,98 162,90"/>`;
+
+  return `<g class="capa-base">
+    <rect class="figura-base" x="116" y="348" width="32" height="214" rx="16"/>
+    <rect class="figura-base" x="152" y="348" width="32" height="214" rx="16"/>
+    <ellipse class="figura-base" cx="128" cy="566" rx="22" ry="13"/>
+    <ellipse class="figura-base" cx="172" cy="566" rx="22" ry="13"/>
+    <rect class="figura-base" x="78"  y="128" width="26" height="150" rx="13"/>
+    <rect class="figura-base" x="196" y="128" width="26" height="150" rx="13"/>
+    <circle class="figura-base" cx="91"  cy="286" r="17"/>
+    <circle class="figura-base" cx="209" cy="286" r="17"/>
+    <rect class="figura-base" x="112" y="298" width="76" height="62" rx="22"/>
+    <rect class="figura-base" x="108" y="120" width="84" height="190" rx="28"/>
+    <rect class="figura-base" x="140" y="100" width="20" height="22"  rx="8"/>
+    ${r}
+    <circle class="figura-base" cx="150" cy="70" r="42"/>
+    ${p}
+    ${cara}
+  </g>`;
+}
+
+function mkHotspot(z, f) {
+  const ariaDesc = z.tipo === "verde"
+    ? "verde, se puede tocar con permiso"
+    : z.tipo === "amarillo"
+      ? "amarilla, depende y presta atención"
+      : "roja, zona privada, nadie debe tocar";
+  return `<ellipse class="zona zona-${z.tipo}" data-id="${z.id}"
+    cx="${f.cx}" cy="${f.cy}" rx="${f.rx}" ry="${f.ry}"
+    tabindex="0" role="button"
+    aria-label="${z.etiqueta} — zona ${ariaDesc}"></ellipse>`;
+}
+
+function buildHotspots(esEspalda) {
+  let g = '<g class="capa-zonas">';
+  for (const z of ZONAS) {
+    const f  = esEspalda ? z.figEsp  : z.figura;
+    const f2 = esEspalda ? z.figEsp2 : z.figura2;
+    if (f)  g += mkHotspot(z, f);
+    if (f2) g += mkHotspot(z, f2);
+  }
+  return g + "</g>";
+}
+
+function agregarEventos(svgEl) {
+  svgEl.querySelectorAll(".zona").forEach(el => {
+    el.addEventListener("click", () => seleccionarZona(el.dataset.id));
+    el.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); seleccionarZona(el.dataset.id); }
+    });
+  });
+}
+
+function dibujarSVG(svgEl, genero, esEspalda) {
+  svgEl.innerHTML = cuerpoBase(genero, esEspalda) + buildHotspots(esEspalda);
+  agregarEventos(svgEl);
+  if (estado.zona) marcarZonaEnSVG(svgEl, estado.zona);
+}
+
+/* ----------------------------------------------------------
+   5. VOLTEO DEL PERSONAJE
+   ---------------------------------------------------------- */
+const tarjetaInterior = document.getElementById("tarjeta-interior");
+const btnVoltear = document.getElementById("btn-voltear");
+let viendoEspalda = false;
+
+btnVoltear.addEventListener("click", () => {
+  viendoEspalda = !viendoEspalda;
+  tarjetaInterior.classList.toggle("volteada", viendoEspalda);
+  btnVoltear.textContent      = viendoEspalda ? "🔄 Ver frente" : "🔄 Voltear";
+  btnVoltear.setAttribute("aria-label",
+    viendoEspalda ? "Ver la vista de frente del personaje" : "Voltear para ver la espalda del personaje");
+});
+
+/* ----------------------------------------------------------
+   6. ESTADO + SELECCIÓN
+   ---------------------------------------------------------- */
+const estado = { genero: "neutro", zona: null, sentir: null };
+let zonaEnPanel = null;
+
+function seleccionarZona(id) {
+  const zona = ZONAS_POR_ID[id];
+  if (!zona) return;
+  estado.zona  = id;
+  zonaEnPanel  = zona;
+  mostrarPanel(zona);
+  marcarZonaEnSVG(svgF, id);
+  marcarZonaEnSVG(svgE, id);
+  marcarBotonZona(id);
+  actualizarMensaje();
+}
+
+function marcarZonaEnSVG(svgEl, id) {
+  svgEl.querySelectorAll(".zona").forEach(el =>
+    el.classList.toggle("seleccionada", id ? el.dataset.id === id : false));
+}
+
+/* ----------------------------------------------------------
+   7. PANEL DE INFORMACIÓN
+   ---------------------------------------------------------- */
+const panelInfo = document.getElementById("panel-info");
+
+function mostrarPanel(zona) {
+  const tieneVoz = !!window.speechSynthesis;
+  panelInfo.innerHTML = `
+    <div class="panel-detalle">
+      <div class="panel-encabezado">
+        <span class="etiqueta-color ${zona.tipo}">${TEXTOS.emoji_color[zona.tipo]} ${zona.tipo}</span>
+        ${tieneVoz ? '<button class="btn-voz" id="btn-voz-panel" aria-label="Leer en voz alta">🔊 Escuchar</button>' : ""}
+      </div>
+      <h3>${zona.etiqueta}</h3>
+      <p class="panel-sub"><strong>${TEXTOS.nombre_color[zona.tipo]}</strong></p>
+      <p class="panel-desc">${zona.desc}</p>
+      <p class="panel-tip">💡 ${zona.tip}</p>
+    </div>`;
+
+  const btnVozPanel = document.getElementById("btn-voz-panel");
+  if (btnVozPanel) {
+    btnVozPanel.addEventListener("click", () => {
+      if (zonaEnPanel) leerTexto(`${zonaEnPanel.etiqueta}. ${zonaEnPanel.desc} ${zonaEnPanel.tip}`);
+    });
+  }
+}
+
+/* ----------------------------------------------------------
+   8. SELECTOR DE PERSONAJE
+   ---------------------------------------------------------- */
+document.querySelectorAll(".chip-personaje").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".chip-personaje").forEach(b => b.classList.remove("activo"));
+    btn.classList.add("activo");
+    estado.genero = btn.dataset.genero;
+    dibujarSVG(svgF, estado.genero, false);
+    dibujarSVG(svgE, estado.genero, true);
+    // Mantiene la vista actual (frente/espalda) al cambiar de personaje
+  });
+});
+
+/* ----------------------------------------------------------
+   9. SEMÁFORO DE COMUNICACIÓN
+   ---------------------------------------------------------- */
+const zonasBotones = document.getElementById("zonas-botones");
+
+ZONAS.forEach(z => {
+  const b = document.createElement("button");
+  b.className  = "btn-zona";
+  b.dataset.id = z.id;
+  b.innerHTML  = `<span class="mini-punto ${z.tipo}" aria-hidden="true"></span>${z.etiqueta}`;
+  b.addEventListener("click", () => {
+    seleccionarZona(z.id);
+    mostrarPanel(ZONAS_POR_ID[z.id]);
+  });
+  zonasBotones.appendChild(b);
+});
+
+function marcarBotonZona(id) {
+  zonasBotones.querySelectorAll(".btn-zona").forEach(b =>
+    b.classList.toggle("activo", id ? b.dataset.id === id : false));
+}
+
+document.querySelectorAll(".luz").forEach(luz => {
+  luz.addEventListener("click", () => {
+    document.querySelectorAll(".luz").forEach(l => l.classList.remove("activo"));
+    luz.classList.add("activo");
+    estado.sentir = luz.dataset.sentir;
+    actualizarMensaje();
+  });
+});
+
+/* ----------------------------------------------------------
+   10. MENSAJE PARA EL ADULTO — FLUJO SEGURO
+   ---------------------------------------------------------- */
+const mensajeResultado   = document.getElementById("mensaje-resultado");
+const mensajeTexto       = document.getElementById("mensaje-texto");
+const msgTitulo          = document.getElementById("msg-titulo");
+const msgNota            = document.getElementById("msg-nota");
+const msgNoEnvia         = document.getElementById("msg-no-envia");
+const btnMostrarAdulto   = document.getElementById("btn-mostrar-adulto");
+const btnImprimir        = document.getElementById("btn-imprimir");
+const btnVozMensaje      = document.getElementById("btn-voz-mensaje");
+const panelAdultoExpand  = document.getElementById("panel-adulto-expand");
+
+function actualizarMensaje() {
+  if (!estado.zona || !estado.sentir) return;
+  const zona = ZONAS_POR_ID[estado.zona];
+  const s    = estado.sentir;
+
+  mensajeResultado.className = `mensaje-resultado tipo-${s}`;
+  msgTitulo.textContent      = TEXTOS.titulo_resultado[s];
+  mensajeTexto.innerHTML     =
+    `Eligió la zona <strong>«${zona.etiqueta}»</strong> y dijo: «${TEXTOS.frase_sentir[s]}»`;
+  msgNota.innerHTML =
+    `<strong>${TEXTOS.nota_nino[s]}</strong><br>
+     <em style="font-size:.9rem">${TEXTOS.guia_adulto[s]}</em>`;
+
+  const esRojo     = s === "rojo";
+  const esAmarillo = s === "amarillo";
+
+  msgNoEnvia.style.display        = esRojo ? ""     : "none";
+  btnMostrarAdulto.style.display  = esRojo ? ""     : "none";
+  btnImprimir.style.display       = (esRojo || esAmarillo) ? "" : "none";
+  btnVozMensaje.style.display     = window.speechSynthesis  ? "" : "none";
+  panelAdultoExpand.classList.add("oculto");
+  btnMostrarAdulto.textContent    = "👨‍👩‍👧 Mostrar a un adulto";
+
+  mensajeResultado.classList.remove("oculto");
+  mensajeResultado.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+btnMostrarAdulto.addEventListener("click", () => {
+  const oculto = panelAdultoExpand.classList.toggle("oculto");
+  btnMostrarAdulto.textContent = oculto
+    ? "👨‍👩‍👧 Mostrar a un adulto"
+    : "👨‍👩‍👧 Ocultar números";
+});
+
+btnImprimir.addEventListener("click", () => {
+  panelAdultoExpand.classList.remove("oculto");
+  window.print();
+});
+
+btnVozMensaje.addEventListener("click", () => {
+  if (!estado.zona || !estado.sentir) return;
+  leerTexto(`${TEXTOS.nota_nino[estado.sentir]} ${TEXTOS.guia_adulto[estado.sentir]}`);
+});
+
+document.getElementById("btn-limpiar").addEventListener("click", () => {
+  estado.zona   = null;
+  estado.sentir = null;
+  zonaEnPanel   = null;
+  mensajeResultado.classList.add("oculto");
+  panelAdultoExpand.classList.add("oculto");
+  document.querySelectorAll(".luz").forEach(l => l.classList.remove("activo"));
+  marcarBotonZona(null);
+  marcarZonaEnSVG(svgF, null);
+  marcarZonaEnSVG(svgE, null);
+  panelInfo.innerHTML = `
+    <div class="panel-vacio">
+      <span class="panel-emoji" aria-hidden="true">👆</span>
+      <p>Pulsa una zona del cuerpo para ver qué significa su color.</p>
+    </div>`;
+});
+
+/* ----------------------------------------------------------
+   11. VOZ OPCIONAL (Web Speech API — degrada si no está disponible)
+   ---------------------------------------------------------- */
+function leerTexto(texto) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u  = new SpeechSynthesisUtterance(texto);
+  u.lang   = "es-CL";
+  u.rate   = 0.9;
+  window.speechSynthesis.speak(u);
+}
+
+/* ----------------------------------------------------------
+   12. INICIO
+   ---------------------------------------------------------- */
+dibujarSVG(svgF, estado.genero, false);
+dibujarSVG(svgE, estado.genero, true);
+</script>
 </body>
 </html>
